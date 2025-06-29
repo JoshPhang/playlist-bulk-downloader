@@ -8,7 +8,7 @@ number_podcasts: ["number"] - Choose how many episodes of each podcast to downlo
 '''
 generate_m3u8 = True
 download_playlists = True
-download_podcasts = True
+download_podcasts = False
 podcast_format = "mp3"
 number_podcasts = "10"
 
@@ -27,11 +27,13 @@ def update_playlist(playlist_url, download_dir):
                                     "spotdl", playlist_url,
                                     "--output", download_dir,
                                     "--m3u",
+                                    "--yt-dlp-args", "--cookies-from-browser chrome",
                                 ])
     else:
         proc = subprocess.Popen([
                                     "spotdl", playlist_url,
-                                    "--output", download_dir
+                                    "--output", download_dir,
+                                    "--yt-dlp-args", "--cookies-from-browser chrome",
                                 ])
     proc.wait()  # Wait for the download to complete
     # Move the .m3u file to the download directory
@@ -55,6 +57,7 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
                                     "--match-filter", 'original_url!*=/shorts/',
                                     "--output", "%(channel)s " + "[" + "%(id)s" + "]",
                                     "--playlist-end", "10",
+                                    "--cookies-from-browser", "chrome",
                                     "--parse-metadata", "title:%(title)s", "--embed-metadata",
                                     "--embed-thumbnail", "-f", "bestaudio", "-x", "--audio-format", "mp3", "--audio-quality", "320k",
                                     "--print-to-file", "#EXTINF:%(duration)s,%(upload_date>%d/%m/%Y)s %(title)s", f"{podcast_name}.m3u8",
@@ -66,6 +69,7 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
                                     "-t", podcast_format,
                                     "--paths", download_dir,
                                     "--playlist-end", "10",
+                                    "--cookies-from-browser", "chrome",
                                     "--parse-metadata", "title:%(title)s", "--write-thumbnail", "--embed-metadata",
                                     "--embed-thumbnail", "-f", "bestaudio", "-x", "--audio-format", "mp3", "--audio-quality", "320k",
                                 ])
