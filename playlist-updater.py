@@ -7,7 +7,7 @@ podcast_format: ["mp4"/"mp3"] - Choose file format for podcasts
 number_podcasts: ["number"] - Choose how many episodes of each podcast to download
 '''
 generate_m3u8 = True
-download_playlists = False
+download_playlists = True
 download_podcasts = True
 podcast_format = "mp3"
 number_podcasts = "10"
@@ -57,7 +57,7 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
                                     "--match-filter", 'original_url!*=/shorts/',
                                     "--output", "%(channel)s " + "[" + "%(id)s" + "]",
                                     "--playlist-end", "10",
-                                    # "--cookies-from-browser", "chrome",
+                                    "--cookies-from-browser", "chrome",
                                     "--sleep-requests", "1.5",
                                     "--min-sleep-interval", "10",
                                     "--max-sleep-interval", "60",
@@ -72,7 +72,7 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
                                     "-t", podcast_format,
                                     "--paths", download_dir,
                                     "--playlist-end", "10",
-                                    # "--cookies-from-browser", "chrome",
+                                    "--cookies-from-browser", "chrome",
                                     "--sleep-requests", "1.5",
                                     "--min-sleep-interval", "10",
                                     "--max-sleep-interval", "60",
