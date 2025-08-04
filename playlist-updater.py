@@ -21,7 +21,7 @@ import subprocess
 import os
 import shutil
 
-def update_playlist(playlist_url, download_dir):
+def update_spotify_playlist(playlist_url, download_dir):
     if generate_m3u8:
         proc = subprocess.Popen([
                                     "spotdl", playlist_url,
@@ -47,6 +47,41 @@ def update_playlist(playlist_url, download_dir):
                 f.write(newPath)
             shutil.move(file, os.path.join(download_dir, file))
     
+
+def update_youtube_playlist(playlist_url, download_dir, playlist_name):
+    if generate_m3u8:
+        proc = subprocess.Popen([
+                                    "yt-dlp", playlist_url,
+                                    "--paths", download_dir,
+                                    "--match-filter", 'original_url!*=/shorts/',
+                                    "--output", "%(title)s " + "[" + "%(id)s" + "]",
+                                    "--cookies-from-browser", "chrome",
+                                    "--sleep-requests", "1.5",
+                                    "--min-sleep-interval", "1",
+                                    "--max-sleep-interval", "10",
+                                    "--parse-metadata", "title:%(title)s", "--embed-metadata",
+                                    "--embed-thumbnail", "-f", "bestaudio", "-x", "--audio-format", "mp3", "--audio-quality", "320k",
+                                    "--print-to-file", "#EXTINF:%(duration)s,%(upload_date>%d/%m/%Y)s %(title)s", f"{playlist_name}.m3u8",
+                                    "--print-to-file", "%(title)s " + "[" + "%(id)s" + "]" + "." + "mp3", f"{playlist_name}.m3u8"
+                                ])
+    else:
+        proc = subprocess.Popen([
+                                    "yt-dlp", playlist_url,
+                                    "-t", podcast_format,
+                                    "--paths", download_dir,
+                                    "--playlist-end", "10",
+                                    "--cookies-from-browser", "chrome",
+                                    "--sleep-requests", "1.5",
+                                    "--min-sleep-interval", "1",
+                                    "--max-sleep-interval", "10",
+                                    "--parse-metadata", "title:%(title)s", "--write-thumbnail", "--embed-metadata",
+                                    "--embed-thumbnail", "-f", "bestaudio", "-x", "--audio-format", "mp3", "--audio-quality", "320k",
+                                ])
+    proc.wait()  # Wait for the download to complete
+    for file in os.listdir(download_dir):
+        if file.endswith('.m3u8'):
+            # Change absolute file path to relative file path for Jellyfin
+            shutil.move(download_dir+"\\"+file, os.path.join(download_dir, file))
 
 def update_podcasts(podcast_url, download_dir, podcast_name):
     if generate_m3u8:
@@ -87,20 +122,42 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
 
 if __name__ == "__main__":
     '''
-    READ PLAYLISTS
+    READ SPOTIFY PLAYLISTS
     '''
     if download_playlists:
-        file_path = "playlists.txt"
+        file_path = "spotify_playlists.txt"
         with open(file_path, "r") as f:
             lines = f.readlines()
             
         if not lines:
-            raise ValueError("playlists.txt is empty. Please specify the download directory on the first line.")
+            raise ValueError("spotify_playlists.txt is empty. Please specify the download directory on the first line.")
         download_dir = lines[0].strip()
 
         for pl in lines[1:]:
             url = pl.strip().split(" ")[1]
-            update_playlist(url, download_dir)
+            update_spotify_playlist(url, download_dir)
+
+    '''
+    READ YOUTUBE PLAYLISTS
+    '''
+    if download_playlists:
+        file_path = "youtube_playlists.txt"
+        with open(file_path, "r") as f:
+            lines = f.readlines()
+            
+        if not lines:
+            raise ValueError("youtube_playlists.txt is empty. Please specify the download directory on the first line.")
+        download_dir = lines[0].strip()
+
+        # Reset podcast playlist to prevent overlapping
+        for file in os.listdir(download_dir):
+            if file.endswith('.m3u8'):
+                os.remove(os.path.join(download_dir, file))
+
+        for pl in lines[1:]:
+            playlist_name = pl.strip().split(" ")[0]
+            url = pl.strip().split(" ")[1]
+            update_youtube_playlist(url, download_dir, playlist_name)
 
     '''
     DOWNLOAD PODCASTS
