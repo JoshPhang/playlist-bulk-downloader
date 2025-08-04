@@ -26,14 +26,14 @@ def update_playlist(playlist_url, download_dir):
         proc = subprocess.Popen([
                                     "spotdl", playlist_url,
                                     "--output", download_dir,
-                                    "--yt-dlp-args", "--sleep-requests 1.5 --min-sleep-interval 10 --max-sleep-interval 60",
+                                    "--yt-dlp-args", "--sleep-requests 1.5 --min-sleep-interval 1 --max-sleep-interval 10",
                                     "--m3u",
                                 ])
     else:
         proc = subprocess.Popen([
                                     "spotdl", playlist_url,
                                     "--output", download_dir,
-                                    "--yt-dlp-args", "--sleep-requests 1.5 --min-sleep-interval 10 --max-sleep-interval 60",
+                                    "--yt-dlp-args", "--sleep-requests 1.5 --min-sleep-interval 1 --max-sleep-interval 10",
                                 ])
     proc.wait()  # Wait for the download to complete
     # Move the .m3u file to the download directory
@@ -59,8 +59,8 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
                                     "--playlist-end", "10",
                                     "--cookies-from-browser", "chrome",
                                     "--sleep-requests", "1.5",
-                                    "--min-sleep-interval", "10",
-                                    "--max-sleep-interval", "60",
+                                    "--min-sleep-interval", "1",
+                                    "--max-sleep-interval", "10",
                                     "--parse-metadata", "title:%(title)s", "--embed-metadata",
                                     "--embed-thumbnail", "-f", "bestaudio", "-x", "--audio-format", "mp3", "--audio-quality", "320k",
                                     "--print-to-file", "#EXTINF:%(duration)s,%(upload_date>%d/%m/%Y)s %(title)s", f"{podcast_name}.m3u8",
@@ -74,8 +74,8 @@ def update_podcasts(podcast_url, download_dir, podcast_name):
                                     "--playlist-end", "10",
                                     "--cookies-from-browser", "chrome",
                                     "--sleep-requests", "1.5",
-                                    "--min-sleep-interval", "10",
-                                    "--max-sleep-interval", "60",
+                                    "--min-sleep-interval", "1",
+                                    "--max-sleep-interval", "10",
                                     "--parse-metadata", "title:%(title)s", "--write-thumbnail", "--embed-metadata",
                                     "--embed-thumbnail", "-f", "bestaudio", "-x", "--audio-format", "mp3", "--audio-quality", "320k",
                                 ])
